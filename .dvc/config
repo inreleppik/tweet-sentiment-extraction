@@ -1,0 +1,2 @@
+['remote "yc_http"']
+    url = https://storage.yandexcloud.net/tweet-sentiment-extraction/dvc

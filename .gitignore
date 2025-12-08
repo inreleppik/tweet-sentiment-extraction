@@ -9,6 +9,7 @@ venv/
 .ruff_cache/
 *.ipynb_checkpoints
 data/
+notebooks/data/
 dataset/
 datasets/
 raw/
@@ -64,3 +65,4 @@ cache/
 .vscode/
 .idea/
 *.iml
+/data
