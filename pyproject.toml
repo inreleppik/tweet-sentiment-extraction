@@ -27,3 +27,24 @@ dev = [
     "pre-commit (>=4.5.0,<5.0.0)",
     "fire (>=0.7.1,<0.8.0)"
 ]
+[tool.ruff]
+line-length = 100
+format = { docstring-code-format = true }
+
+[tool.ruff.lint]
+select = [
+    # isort
+    "I",
+    # pycodestyle
+    "E", "W",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+]
+
+pycodestyle = { max-doc-length = 105 }
+
+# [tool.ruff.lint.per-file-ignores]
+# "__init__.py" = ["E402"]
+# "**/{tests,docs,tools}/*" = ["E402"]
