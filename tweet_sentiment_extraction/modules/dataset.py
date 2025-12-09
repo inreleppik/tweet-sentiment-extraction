@@ -2,11 +2,12 @@ import torch
 from torch.utils.data import Dataset
 from transformers import RobertaTokenizerFast
 
+
 class TweetDataset(Dataset):
     def __init__(self, df, model_name: str, max_len: int):
         self.df = df.reset_index(drop=True)
         self.max_len = max_len
-        self.labeled = 'selected_text' in df.columns
+        self.labeled = "selected_text" in df.columns
 
         self.tokenizer = RobertaTokenizerFast.from_pretrained(
             model_name,
@@ -58,8 +59,8 @@ class TweetDataset(Dataset):
         offsets = [(0, 0)] * prefix_len + list(tweet_offsets) + [(0, 0)]
 
         if len(ids) > self.max_len:
-            ids = ids[:self.max_len]
-            offsets = offsets[:self.max_len]
+            ids = ids[: self.max_len]
+            offsets = offsets[: self.max_len]
 
         pad_len = self.max_len - len(ids)
         if pad_len > 0:
@@ -80,7 +81,7 @@ class TweetDataset(Dataset):
         idx1 = None
 
         for ind in (i for i, e in enumerate(tweet) if e == selected_text[1]):
-            if " " + tweet[ind: ind + len_st] == selected_text:
+            if " " + tweet[ind : ind + len_st] == selected_text:
                 idx0 = ind
                 idx1 = ind + len_st - 1
                 break
@@ -92,7 +93,7 @@ class TweetDataset(Dataset):
 
         target_idx = []
         for j, (offset1, offset2) in enumerate(offsets):
-            if sum(char_targets[offset1: offset2]) > 0:
+            if sum(char_targets[offset1:offset2]) > 0:
                 target_idx.append(j)
 
         start_idx = target_idx[0]

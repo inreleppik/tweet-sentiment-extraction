@@ -1,10 +1,9 @@
 import numpy as np
-import torch
 import pytorch_lightning as pl
+import torch
 
+from tweet_sentiment_extraction.modules.metrics import TextSpanJaccard, get_selected_text
 from tweet_sentiment_extraction.modules.model import TweetModel, loss_fn
-from tweet_sentiment_extraction.modules.metrics import TextSpanJaccard
-from tweet_sentiment_extraction.modules.metrics import get_selected_text
 
 
 class TweetLightningModule(pl.LightningModule):
@@ -27,7 +26,7 @@ class TweetLightningModule(pl.LightningModule):
 
         start_logits, end_logits = self(ids, masks)
         loss = loss_fn(start_logits, end_logits, start_idx, end_idx)
-        
+
         self.train_jaccard.update(batch, start_logits, end_logits)
         self.log("train_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
         self.log(
@@ -61,7 +60,7 @@ class TweetLightningModule(pl.LightningModule):
         )
 
         return loss
-    
+
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         ids = batch["ids"]
         masks = batch["masks"]

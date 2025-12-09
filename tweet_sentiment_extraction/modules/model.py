@@ -1,5 +1,6 @@
-import torch.nn as nn
-from transformers import RobertaModel, RobertaConfig
+from torch import nn
+from transformers import RobertaConfig, RobertaModel
+
 
 class TweetModel(nn.Module):
     def __init__(self, model_name: str):
@@ -31,6 +32,7 @@ class TweetModel(nn.Module):
         start_logits = start_logits.squeeze(-1)
         end_logits = end_logits.squeeze(-1)
         return start_logits, end_logits
+
 
 def loss_fn(start_logits, end_logits, start_positions, end_positions):
     ce_loss = nn.CrossEntropyLoss()

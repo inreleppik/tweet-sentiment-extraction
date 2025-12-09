@@ -6,10 +6,11 @@ from torchmetrics import Metric
 def get_selected_text(text, start_idx, end_idx, offsets):
     selected_text = ""
     for ix in range(start_idx, end_idx + 1):
-        selected_text += text[offsets[ix][0]: offsets[ix][1]]
+        selected_text += text[offsets[ix][0] : offsets[ix][1]]
         if (ix + 1) < len(offsets) and offsets[ix][1] < offsets[ix + 1][0]:
             selected_text += " "
     return selected_text
+
 
 def jaccard(str1, str2):
     a = set(str1.lower().split())
@@ -18,6 +19,7 @@ def jaccard(str1, str2):
     if len(a) + len(b) - len(c) == 0:
         return 0.0
     return float(len(c)) / (len(a) + len(b) - len(c))
+
 
 def compute_jaccard_score(text, start_idx, end_idx, start_logits, end_logits, offsets):
     start_pred = np.argmax(start_logits)
@@ -31,8 +33,8 @@ def compute_jaccard_score(text, start_idx, end_idx, start_logits, end_logits, of
     true = get_selected_text(text, start_idx, end_idx, offsets)
     return jaccard(true, pred)
 
-class TextSpanJaccard(Metric):
 
+class TextSpanJaccard(Metric):
     full_state_update = False
 
     def __init__(self):

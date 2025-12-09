@@ -1,12 +1,12 @@
 import os
-import torch
-import pandas as pd
-import pytorch_lightning as pl
-from sklearn.model_selection import train_test_split
 
 import hydra
-from omegaconf import DictConfig
+import pandas as pd
+import pytorch_lightning as pl
+import torch
 from hydra.utils import to_absolute_path
+from omegaconf import DictConfig
+from sklearn.model_selection import train_test_split
 
 from tweet_sentiment_extraction.modules.data_module import TweetDataModule
 from tweet_sentiment_extraction.modules.module import TweetLightningModule
@@ -15,7 +15,6 @@ from tweet_sentiment_extraction.utils import seed_everything
 
 @hydra.main(config_path="../configs", config_name="config", version_base=None)
 def main(cfg: DictConfig):
-
     seed_everything(cfg.training.seed)
     pl.seed_everything(cfg.training.seed, workers=True)
 
