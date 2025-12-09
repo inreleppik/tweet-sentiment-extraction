@@ -1,16 +1,15 @@
 import torch
 from torch.utils.data import Dataset
 from transformers import RobertaTokenizerFast
-from config import MODEL_NAME, MAX_LEN
 
 class TweetDataset(Dataset):
-    def __init__(self, df, max_len: int = MAX_LEN):
+    def __init__(self, df, model_name: str, max_len: int):
         self.df = df.reset_index(drop=True)
         self.max_len = max_len
         self.labeled = 'selected_text' in df.columns
 
         self.tokenizer = RobertaTokenizerFast.from_pretrained(
-            MODEL_NAME,
+            model_name,
             add_prefix_space=True,
         )
 
@@ -53,7 +52,6 @@ class TweetDataset(Dataset):
         )
         sentiment_ids = sent_enc["input_ids"]
 
-        # <s> sentiment </s></s> tweet </s>
         ids = [0] + sentiment_ids + [2, 2] + tweet_ids + [2]
 
         prefix_len = 1 + len(sentiment_ids) + 2

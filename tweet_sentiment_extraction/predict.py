@@ -1,50 +1,58 @@
-import torch
-import numpy as np
+import os
 import pandas as pd
+import pytorch_lightning as pl
 from torch.utils.data import DataLoader
+import torch
 
-from config import TEST_CSV, OUTPUT_DIR, BATCH_SIZE
-from dataset import TweetDataset
-from metrics import get_selected_text
-from module import TweetLightningModule
+import hydra
+from omegaconf import DictConfig
+from hydra.utils import to_absolute_path
 
-def main():
-    test_df = pd.read_csv(TEST_CSV)
+from tweet_sentiment_extraction.modules.dataset import TweetDataset
+from tweet_sentiment_extraction.modules.module import TweetLightningModule
+
+
+@hydra.main(config_path="../configs", config_name="config", version_base=None)
+def main(cfg: DictConfig):
+    test_csv_path = to_absolute_path(cfg.data_loading.test_csv)
+    test_df = pd.read_csv(test_csv_path)
     test_df["text"] = test_df["text"].astype(str)
 
-    test_ds = TweetDataset(test_df)
-    test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=2)
+    test_ds = TweetDataset(
+        test_df,
+        model_name=cfg.model.model_name,
+        max_len=cfg.model.max_len,
+    )
 
-    ckpt_path = f"{OUTPUT_DIR}/roberta_single_split.ckpt"
-    pl_model = TweetLightningModule.load_from_checkpoint(ckpt_path, lr=0.0)
-    pl_model.eval()
-    pl_model.cuda()
-    model = pl_model.model
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=cfg.training.batch_size,
+        shuffle=False,
+        num_workers=2,
+    )
 
-    predictions = []
+    ckpt_dir = to_absolute_path(cfg.training.output_dir)
+    ckpt_path = os.path.join(ckpt_dir, "roberta_single_split.ckpt")
 
-    with torch.no_grad():
-        for batch in test_loader:
-            ids = batch["ids"].cuda()
-            masks = batch["masks"].cuda()
-            tweet = batch["tweet"]
-            offsets = batch["offsets"].numpy()
+    model = TweetLightningModule.load_from_checkpoint(
+        ckpt_path,
+        model_name=cfg.model.model_name,
+        lr=0.0,
+    )
 
-            start_logits, end_logits = model(ids, masks)
-            start_logits = torch.softmax(start_logits, dim=1).cpu().numpy()
-            end_logits = torch.softmax(end_logits, dim=1).cpu().numpy()
+    trainer = pl.Trainer(
+        accelerator="gpu" if torch.cuda.is_available() else "cpu",
+        devices=1,
+    )
 
-            for i in range(len(ids)):
-                start_pred = np.argmax(start_logits[i])
-                end_pred = np.argmax(end_logits[i])
-                if start_pred > end_pred:
-                    pred = tweet[i]
-                else:
-                    pred = get_selected_text(tweet[i], start_pred, end_pred, offsets[i])
-                predictions.append(pred)
+    all_preds_batches = trainer.predict(model, dataloaders=test_loader)
+    predictions = [p for batch in all_preds_batches for p in batch]
 
+    out_path = to_absolute_path("result.csv")
     test_df["selected_text"] = predictions
-    test_df.to_csv("submission.csv", index=False)
+    test_df.to_csv(out_path, index=False)
+    print(f"Saved {out_path}")
+
 
 if __name__ == "__main__":
     main()

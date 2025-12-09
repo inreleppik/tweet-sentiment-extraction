@@ -1,15 +1,14 @@
 import torch.nn as nn
 from transformers import RobertaModel, RobertaConfig
-from config import MODEL_NAME
 
 class TweetModel(nn.Module):
-    def __init__(self):
+    def __init__(self, model_name: str):
         super().__init__()
 
-        config = RobertaConfig.from_pretrained(MODEL_NAME)
+        config = RobertaConfig.from_pretrained(model_name)
         config.output_hidden_states = True
 
-        self.roberta = RobertaModel.from_pretrained(MODEL_NAME, config=config)
+        self.roberta = RobertaModel.from_pretrained(model_name, config=config)
         self.dropout = nn.Dropout(0.5)
         self.fc = nn.Linear(config.hidden_size, 2)
 
