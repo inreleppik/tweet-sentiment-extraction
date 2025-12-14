@@ -2,5 +2,12 @@ batch_size: 128
 num_epochs: 3
 lr: 3e-5
 seed: 42
-output_dir: models/
+output_dir: outputs
+ckpt_dir: models
+monitor: val_jaccard
+mode: max
+save_top_k: 1
+best_model: roberta_single_split
 infer_model: roberta_single_split.ckpt
+res_dir: results
+res_file: result.csv

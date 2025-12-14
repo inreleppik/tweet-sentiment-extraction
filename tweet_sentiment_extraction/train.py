@@ -6,6 +6,7 @@ import pytorch_lightning as pl
 import torch
 from hydra.utils import to_absolute_path
 from omegaconf import DictConfig
+from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import MLFlowLogger
 from sklearn.model_selection import train_test_split
 
@@ -51,7 +52,20 @@ def main(cfg: DictConfig):
         run_name=cfg.logging.run_name,
     )
 
-    output_dir = to_absolute_path("outputs")
+    ckpt_dir = to_absolute_path(cfg.training.ckpt_dir)
+    os.makedirs(ckpt_dir, exist_ok=True)
+
+    checkpoint_cb = ModelCheckpoint(
+        dirpath=ckpt_dir,
+        filename=cfg.training.best_model,
+        monitor=cfg.training.monitor,
+        mode=cfg.training.mode,
+        save_top_k=cfg.training.save_top_k,
+        save_last=False,
+        auto_insert_metric_name=False,
+    )
+
+    output_dir = to_absolute_path(cfg.training.output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
     trainer = pl.Trainer(
@@ -59,6 +73,7 @@ def main(cfg: DictConfig):
         accelerator="gpu" if torch.cuda.is_available() else "cpu",
         devices=1,
         precision="16-mixed" if torch.cuda.is_available() else 32,
+        callbacks=checkpoint_cb,
         default_root_dir=output_dir,
         logger=mlflow_logger,
         log_every_n_steps=10,

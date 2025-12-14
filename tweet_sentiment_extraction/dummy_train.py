@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from tweet_sentiment_extraction.modules.heuristic_model import HeuristicModel
 from tweet_sentiment_extraction.modules.metrics import evaluate_jaccard
 
+
 @hydra.main(config_path="../configs", config_name="config", version_base=None)
 def main(cfg: DictConfig):
     train_csv_path = to_absolute_path(cfg.data_loading.train_csv)
@@ -20,7 +21,7 @@ def main(cfg: DictConfig):
     df["text"] = df["text"].astype(str)
     df["selected_text"] = df["selected_text"].astype(str)
 
-    train_df, val_df = train_test_split(
+    _, val_df = train_test_split(
         df,
         test_size=0.2,
         random_state=cfg.training.seed,

@@ -12,6 +12,7 @@ data/
 notebooks/data/
 dataset/
 datasets/
+results/
 raw/
 processed/
 inputs/

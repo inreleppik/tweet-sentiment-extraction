@@ -31,7 +31,7 @@ def main(cfg: DictConfig):
         num_workers=2,
     )
 
-    ckpt_dir = to_absolute_path(cfg.training.output_dir)
+    ckpt_dir = to_absolute_path(cfg.training.ckpt_dir)
     model_file = cfg.training.infer_model
     ckpt_path = os.path.join(ckpt_dir, model_file)
 
@@ -49,10 +49,14 @@ def main(cfg: DictConfig):
     all_preds_batches = trainer.predict(model, dataloaders=test_loader)
     predictions = [p for batch in all_preds_batches for p in batch]
 
-    out_path = to_absolute_path("result.csv")
+    res_dir = to_absolute_path(cfg.training.res_dir)
+    res_file = cfg.training.res_file
+    res_path = os.path.join(res_dir, res_file)
+    os.makedirs(res_dir, exist_ok=True)
+
     test_df["selected_text"] = predictions
-    test_df.to_csv(out_path, index=False)
-    print(f"Saved {out_path}")
+    test_df.to_csv(res_path, index=False)
+    print(f"Saved {res_path}")
 
 
 if __name__ == "__main__":
