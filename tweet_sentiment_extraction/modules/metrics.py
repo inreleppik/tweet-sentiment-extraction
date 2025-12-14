@@ -1,6 +1,31 @@
 import numpy as np
+import pandas as pd
 import torch
 from torchmetrics import Metric
+
+
+def jaccard_words(true: str, pred: str) -> float:
+    a = set(str(true).lower().split())
+    b = set(str(pred).lower().split())
+    if not a and not b:
+        return 1.0
+    if not a or not b:
+        return 0.0
+    inter = len(a & b)
+    union = len(a | b)
+    return inter / union
+
+
+def evaluate_jaccard(df: pd.DataFrame, preds: list[str]) -> float:
+    if "selected_text" not in df.columns:
+        raise ValueError(
+            "Нельзя посчитать метрику: в df нет колонки selected_text (нет ground truth)."
+        )
+    scores = [
+        jaccard_words(t, p)
+        for t, p in zip(df["selected_text"].astype(str).tolist(), preds, strict=True)
+    ]
+    return float(np.mean(scores))
 
 
 def get_selected_text(text, start_idx, end_idx, offsets):
