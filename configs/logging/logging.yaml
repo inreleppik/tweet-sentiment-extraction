@@ -1,0 +1,4 @@
+experiment_name: tweet-sentiment-extraction
+run_name: roberta-base
+mlflow_save_dir: "mlflowruns"
+tracking_uri: ./mlruns

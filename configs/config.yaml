@@ -2,3 +2,4 @@ defaults:
   - data_loading: data
   - model: model
   - training: training
+  - logging: logging

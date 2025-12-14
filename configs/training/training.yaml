@@ -2,4 +2,5 @@ batch_size: 128
 num_epochs: 3
 lr: 3e-5
 seed: 42
-output_dir: model_files
+output_dir: models/
+infer_model: roberta_single_split.ckpt

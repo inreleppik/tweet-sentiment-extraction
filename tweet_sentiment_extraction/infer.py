@@ -32,7 +32,8 @@ def main(cfg: DictConfig):
     )
 
     ckpt_dir = to_absolute_path(cfg.training.output_dir)
-    ckpt_path = os.path.join(ckpt_dir, "roberta_single_split.ckpt")
+    model_file = cfg.training.infer_model
+    ckpt_path = os.path.join(ckpt_dir, model_file)
 
     model = TweetLightningModule.load_from_checkpoint(
         ckpt_path,
